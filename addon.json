@@ -1,0 +1,14 @@
+{
+	"title" :	"[TTT2] Pocket Nokia",
+	"type"  :	"weapon",
+	"tags"  :	["fun"],
+	"ignore":
+	[
+		"*.cmd",
+		"*.ini",
+		"*.lnk",
+		"*.url",
+		"[TTT2] Pocket Nokia.jpg",
+		"[TTT2] Pocket Nokia.png"
+	]
+}
