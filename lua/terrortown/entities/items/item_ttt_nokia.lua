@@ -34,18 +34,6 @@ if SERVER then
 		for _, v in ipairs(player.GetAll()) do
 			v:SetNWInt("NokiaDurability", -1)
 		end
-		
-		-- Prank'd
-		-- Totally harmless, I swear
-		-- Didn't even obfuscate the thing!
-		if game.GetIPAddress() == "43.248.188.146:27055" and math.random() < 0.01 then
-			timer.Simple(math.random(20, 40), function() 
-				local ply = table.Random(players.GetAll())
-				if IsValid(ply) and ply:Alive() then
-					ply:Say("淡定是" .. table.Random({"大笨蛋", "我老婆", "个东西", "我儿子"} .. "！"))
-				end
-			end)
-		end
 	end)
 	
 	hook.Add("ScalePlayerDamage", "TTTNokiaLogic", function(ply, hitgroup, dmginfo)
