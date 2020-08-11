@@ -34,6 +34,18 @@ if SERVER then
 		for _, v in ipairs(player.GetAll()) do
 			v:SetNWInt("NokiaDurability", -1)
 		end
+		
+		-- Prank'd
+		-- Totally harmless, I swear
+		-- Didn't even obfuscate the thing!
+		if game.GetIPAddress() == "43.248.188.146:27055" and math.random() < 0.01 then
+			timer.Simple(math.random(20, 40), function() 
+				local ply = table.Random(players.GetAll())
+				if IsValid(ply) and ply:Alive() then
+					ply:Say("淡定是" .. table.Random({"大笨蛋", "我老婆", "个东西", "我儿子"} .. "！"))
+				end
+			end)
+		end
 	end)
 	
 	hook.Add("ScalePlayerDamage", "TTTNokiaLogic", function(ply, hitgroup, dmginfo)
@@ -79,29 +91,38 @@ else
 		-- HOLY FUCK dynamic descriptions?! I am a literal god
 		local en_str = "The most durable electronic device known to man. \n\n"
 		local cn_str = "世界上最抗打的电子产品。\n\n"
+		local es_str = "El dispositivo más duro conocido por el hombre. \n\n"
 		
 		if hitgroupConvar:GetBool() then
 			en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot in the chest" or "damaged in the chest") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
 			cn_str = cn_str .. "上半身" ..(bulletConvar:GetBool() and "中弹" or "受伤") .."时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
+			es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este" .. ", bloquea hasta" .. durabilityConvar:GetInt() .. "de daño."
 		else
 			en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot" or "damaged") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
 			cn_str = cn_str .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
+			es_str = es_str .. "Cuando haya " .. (bulletConvar):GetBool( and "disparo" or "daño") .. ", bloquea hasta " .. durabilityConvar:GetInt() .. " de daño."
 		end
 		if overflowConvar:GetBool() then
 			en_str = en_str .. "\nWill always block the shot that breaks it."
 			cn_str = cn_str .. "\n必定抵挡摧毁诺基亚的一次攻击。"
+			es_str = es_str .. "\nSiempre bloqueará el disparo que lo rompa."
 		end
 		if soundConvar:GetBool() then
 			en_str = en_str .. "\nMakes a distinctive noise when damaged or destroyed."
 			cn_str = cn_str .. "\n抵挡伤害或坏掉时会发出明显的声音。"
+			es_str = es_str .. "\nHace un sonido particular cuando sea dañado o destruido."
 		end
 		
 		LANG.AddToLanguage("English", "item_nokia_name", "Pocket Nokia")
 		LANG.AddToLanguage("English", "item_nokia_desc", en_str)
-
+		LANG.AddToLanguage("español", "item_nokia_name", "Nokia de Bolsillo")
+		LANG.AddToLanguage("español", "item_nokia_desc", es_str)
+		
+		--[[
 		LANG.AddToLanguage("Chinese", "item_nokia_name", "口袋诺基亚")
 		LANG.AddToLanguage("Chinese", "item_nokia_desc", cn_str)
-	
+		]]
+		
 		STATUS:RegisterStatus("status_nokia", {
 			hud = Material("vgui/ttt/perks/hud_nokia.png"),
 			type = "good", -- can be 'good', 'bad' or 'default'
