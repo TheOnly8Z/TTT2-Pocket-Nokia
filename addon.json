@@ -8,6 +8,10 @@
 		"*.ini",
 		"*.lnk",
 		"*.url",
+        ".git/*",
+        ".gitignore",
+        "LICENSE",
+        "README.md",
 		"[TTT2] Pocket Nokia.jpg",
 		"[TTT2] Pocket Nokia.png"
 	]

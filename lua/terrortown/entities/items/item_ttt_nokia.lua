@@ -1,16 +1,12 @@
-if SERVER then
-    AddCSLuaFile()
-    util.AddNetworkString("TTTNokiaBought")
-end
+AddCSLuaFile()
 
 -- Shared, so the client knows what to expect (used in description change)
-local durabilityConvar = CreateConVar("ttt_nokia_durability", 30, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}, "How much damage can the Nokia take before breaking?")
-local overflowConvar = CreateConVar("ttt_nokia_overflowblock", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}, "Will the Nokia block a final shot, regardless of durability left? If set to 0, overflow damage will be applied to player.")
-local soundConvar = CreateConVar("ttt_nokia_worldsounds", 0, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}, "Will the Nokia make a distinct sound when it's damaged or broken? If set to 0, only the user can hear sounds.")
-local hitgroupConvar = CreateConVar("ttt_nokia_chestonly", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}, "Does the Nokia only stop damage to the chest/stomach? If set to 0, it will stop all damage, including headshots.")
-local bulletConvar = CreateConVar("ttt_nokia_bulletonly", 1, {FCVAR_SERVER_CAN_EXECUTE, FCVAR_ARCHIVE}, "Does the Nokia only stop bullet damage? If set to 0, it stops all damage that has hitgroups.")
+local durabilityConvar = CreateConVar("ttt_nokia_durability", 30, {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "How much damage can the Nokia take before breaking?")
+local overflowConvar = CreateConVar("ttt_nokia_overflowblock", 1, {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Will the Nokia block a final shot, regardless of durability left? If set to 0, overflow damage will be applied to player.")
+local soundConvar = CreateConVar("ttt_nokia_worldsounds", 0, {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Will the Nokia make a distinct sound when it's damaged or broken? If set to 0, only the user can hear sounds.")
+local hitgroupConvar = CreateConVar("ttt_nokia_chestonly", 1, {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Does the Nokia only stop damage to the chest/stomach? If set to 0, it will stop all damage, including headshots.")
+local bulletConvar = CreateConVar("ttt_nokia_bulletonly", 1, {FCVAR_REPLICATED, FCVAR_ARCHIVE}, "Does the Nokia only stop bullet damage? If set to 0, it stops all damage that has hitgroups.")
 
---ITEM.hud = Material("vgui/ttt/perks/hud_nokia.png")
 ITEM.EquipMenuData = {
     type = "item_passive",
     name = "item_nokia_name",
@@ -20,21 +16,19 @@ ITEM.EquipMenuData = {
 ITEM.material = "vgui/ttt/icon_nokia"
 ITEM.CanBuy = {ROLE_TRAITOR, ROLE_DETECTIVE}
 
-if SERVER then
-    function ITEM:Bought(ply)
-        net.Start("TTTNokiaBought")
-        net.WriteEntity(ply)
-        net.Broadcast()
-        ply:SetNWInt("NokiaDurability", durabilityConvar:GetInt()) -- Automatically networked!
-        STATUS:AddStatus(ply, "status_nokia")
-        ply:SendLua("LocalPlayer():EmitSound('nokia_ringtone.wav')")
-    end
+function ITEM:Reset(ply)
+    ply:SetNWInt("NokiaDurability", -1)
+end
 
-    hook.Add("TTTEndRound", "TTTNokiaCleanUp_Server", function()
-        for _, v in ipairs(player.GetAll()) do
-            v:SetNWInt("NokiaDurability", -1)
-        end
-    end)
+function ITEM:Bought(ply)
+    ply:SetNWInt("NokiaDurability", durabilityConvar:GetInt()) -- Automatically networked!
+    STATUS:AddStatus(ply, "status_nokia")
+    if CLIENT then
+        LocalPlayer():EmitSound("nokia_ringtone.wav")
+    end
+end
+
+if SERVER then
 
     hook.Add("ScalePlayerDamage", "TTTNokiaLogic", function(ply, hitgroup, dmginfo)
         if ply:GetNWInt("NokiaDurability", -1) > 0 and (not bulletConvar:GetBool() or dmginfo:IsDamageType(DMG_BULLET)) and (not hitgroupConvar:GetBool() or (hitgroup == HITGROUP_CHEST or hitgroup == HITGROUP_STOMACH)) then
@@ -44,7 +38,7 @@ if SERVER then
                 ply:SetNWInt("NokiaDurability", math.Round(ply:GetNWInt("NokiaDurability") - damage))
 
                 if soundConvar:GetBool() and (ply.NokiaSoundT or 0) < CurTime() then
-                    ply:EmitSound('physics/plastic/plastic_box_impact_hard2.wav', 60)
+                    ply:EmitSound("physics/plastic/plastic_box_impact_hard2.wav", 60)
                 elseif (ply.NokiaSoundT or 0) < CurTime() then
                     ply:SendLua("LocalPlayer():EmitSound('physics/plastic/plastic_box_impact_hard2.wav')") -- Only holder hears this
                 end
@@ -65,7 +59,7 @@ if SERVER then
 
                 -- Only plays once, so no sound grace
                 if soundConvar:GetBool() then
-                    ply:EmitSound('physics/plastic/plastic_box_impact_bullet3.wav', 60)
+                    ply:EmitSound("physics/plastic/plastic_box_impact_bullet3.wav", 60)
                 else
                     ply:SendLua("LocalPlayer():EmitSound('physics/plastic/plastic_box_impact_bullet3.wav')")
                 end
@@ -75,8 +69,8 @@ if SERVER then
         end
     end)
 else
-    hook.Add("Initialize", "TTTNokiaInit_Client", function()
-        -- HOLY FUCK dynamic descriptions?! I am a literal god
+    hook.Add("Initialize", "TTTNokia", function()
+
         local en_str = "The most durable electronic device known to man. \n\n"
         local cn_str = "世界上最抗打的电子产品。\n\n"
         local es_str = "El dispositivo más duro conocido por el hombre. \n\n"
@@ -84,7 +78,7 @@ else
         if hitgroupConvar:GetBool() then
             en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot in the chest" or "damaged in the chest") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
             cn_str = cn_str .. "上半身" .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
-            es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este") .. ", bloquea hasta" .. durabilityConvar:GetInt() .. "de daño."
+            es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este") .. ", bloquea hasta " .. durabilityConvar:GetInt() .. " de daño."
         else
             en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot" or "damaged") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
             cn_str = cn_str .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
@@ -107,8 +101,8 @@ else
         LANG.AddToLanguage("English", "item_nokia_desc", en_str)
 
         -- Translated by Tekiad
-        LANG.AddToLanguage("Spanish", "item_nokia_name", "Nokia de Bolsillo")
-        LANG.AddToLanguage("Spanish", "item_nokia_desc", es_str)
+        LANG.AddToLanguage("Español", "item_nokia_name", "Nokia de Bolsillo")
+        LANG.AddToLanguage("Español", "item_nokia_desc", es_str)
 
         LANG.AddToLanguage("简体中文", "item_nokia_name", "口袋诺基亚")
         LANG.AddToLanguage("简体中文", "item_nokia_desc", cn_str)
@@ -118,28 +112,6 @@ else
             type = "good", -- can be 'good', 'bad' or 'default'
             DrawInfo = function() return LocalPlayer():GetNWInt("NokiaDurability", -1) > 0 and math.Round(LocalPlayer():GetNWInt("NokiaDurability")) or "" end, -- can be used to draw custom text on top of the status icon
         })
-    end)
-
-    net.Receive("TTTNokiaBought", function()
-        local ply = net.ReadEntity()
-        if ply == LocalPlayer() then return end
-
-        if not ply:HasEquipmentItem("item_ttt_nokia") then
-            ply.equipmentItems = ply.equipmentItems or {}
-            ply.equipmentItems[#ply.equipmentItems + 1] = "item_ttt_nokia"
-        end
-    end)
-
-    --STATUS:AddStatus(ply, "status_nokia") -- Calling this serverside should be fine
-    hook.Add("TTTEndRound", "TTTNokiaCleanUp_Client", function()
-        local lcply = LocalPlayer()
-        STATUS:RemoveStatus(lcply, "status_nokia")
-
-        for _, v in ipairs(player.GetAll()) do
-            if v ~= lcply then
-                v.equipmentItems = {}
-            end
-        end
     end)
 
     hook.Add("TTT2ScoreboardAddPlayerRow", "TTTAddNokiaDev8Z", function(ply)
