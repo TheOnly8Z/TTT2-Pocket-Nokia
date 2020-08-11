@@ -96,7 +96,8 @@ else
 		if hitgroupConvar:GetBool() then
 			en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot in the chest" or "damaged in the chest") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
 			cn_str = cn_str .. "上半身" ..(bulletConvar:GetBool() and "中弹" or "受伤") .."时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
-			es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este" .. ", bloquea hasta" .. durabilityConvar:GetInt() .. "de daño."
+			es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este") .. ", bloquea hasta" .. durabilityConvar:GetInt() .. "de daño."
+
 		else
 			en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot" or "damaged") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
 			cn_str = cn_str .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
