@@ -74,27 +74,32 @@ else
         local en_str = "The most durable electronic device known to man. \n\n"
         local cn_str = "世界上最抗打的电子产品。\n\n"
         local es_str = "El dispositivo más duro conocido por el hombre. \n\n"
+        local ru_str = "Самое прочное электронное устройство, известное человеку. \n\n"
 
         if hitgroupConvar:GetBool() then
             en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot in the chest" or "damaged in the chest") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
             cn_str = cn_str .. "上半身" .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
             es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo en el pecho" or "o lastimado en este") .. ", bloquea hasta " .. durabilityConvar:GetInt() .. " de daño."
+            ru_str = ru_str .. "При " .. (bulletConvar:GetBool() and "выстреле в грудь" or "уроне в грудь") .. ", блокирует до " .. durabilityConvar:GetInt() .. " урона."
         else
             en_str = en_str .. "When " .. (bulletConvar:GetBool() and "shot" or "damaged") .. ", blocks up to " .. durabilityConvar:GetInt() .. " damage."
             cn_str = cn_str .. (bulletConvar:GetBool() and "中弹" or "受伤") .. "时抵挡共" .. durabilityConvar:GetInt() .. "伤害。"
             es_str = es_str .. "Cuando haya " .. (bulletConvar:GetBool() and "disparo" or "daño") .. ", bloquea hasta " .. durabilityConvar:GetInt() .. " de daño."
+            ru_str = ru_str .. "При " .. (bulletConvar:GetBool() and "выстреле" or "уроне") .. ", блокирует до " .. durabilityConvar:GetInt() .. " урона."
         end
 
         if overflowConvar:GetBool() then
             en_str = en_str .. "\nWill always block the shot that breaks it."
             cn_str = cn_str .. "\n必定抵挡摧毁诺基亚的一次攻击。"
             es_str = es_str .. "\nSiempre bloqueará el disparo que lo rompa."
+            ru_str = ru_str .. "\nВсегда будет блокировать выстрел, который его разрушит."
         end
 
         if soundConvar:GetBool() then
             en_str = en_str .. "\nMakes a distinctive noise when damaged or destroyed."
             cn_str = cn_str .. "\n抵挡伤害或坏掉时会发出明显的声音。"
             es_str = es_str .. "\nHace un sonido particular cuando sea dañado o destruido."
+            ru_str = ru_str .. "\nИздаёт характерный шум при повреждении или разрушении."
         end
 
         LANG.AddToLanguage("English", "item_nokia_name", "Pocket Nokia")
@@ -106,6 +111,10 @@ else
 
         LANG.AddToLanguage("简体中文", "item_nokia_name", "口袋诺基亚")
         LANG.AddToLanguage("简体中文", "item_nokia_desc", cn_str)
+		
+		-- Translated by berry
+		LANG.AddToLanguage("Русский", "item_nokia_name", "Карманная Nokia")
+        LANG.AddToLanguage("Русский", "item_nokia_desc", ru_str)
 
         STATUS:RegisterStatus("status_nokia", {
             hud = Material("vgui/ttt/perks/hud_nokia.png"),
